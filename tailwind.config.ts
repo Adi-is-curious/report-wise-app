@@ -59,8 +59,8 @@ export default {
           foreground: "hsl(var(--warning-foreground))",
         },
         government: {
-          blue: "hsl(var(--government-blue))",
-          navy: "hsl(var(--government-navy))",
+          green: "hsl(var(--government-green))",
+          yellow: "hsl(var(--government-yellow))",
           light: "hsl(var(--government-light))",
           accent: "hsl(var(--government-accent))",
         },

@@ -9,9 +9,11 @@ import {
   User, 
   FileText, 
   Award,
-  LogOut 
+  LogOut,
+  Globe
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,19 +23,25 @@ const Layout = ({ children }: LayoutProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { language, setLanguage, t } = useLanguage();
 
   const navigationItems = [
-    { label: "Home", icon: Home, path: "/" },
-    { label: "Report Issue", icon: FileText, path: "/report" },
-    { label: "Active Cases", icon: MapPin, path: "/map" },
-    { label: "Community", icon: Users, path: "/community" },
-    { label: "My Reports", icon: User, path: "/dashboard" },
-    { label: "Rewards", icon: Award, path: "/rewards" },
+    { label: t("home"), icon: Home, path: "/" },
+    { label: t("reportIssue"), icon: FileText, path: "/report" },
+    { label: t("activeCases"), icon: MapPin, path: "/map" },
+    { label: t("community"), icon: Users, path: "/community" },
+    { label: t("myReports"), icon: User, path: "/dashboard" },
+    { label: t("rewards"), icon: Award, path: "/rewards" },
   ];
 
   const handleNavigation = (path: string) => {
     navigate(path);
     setIsOpen(false);
+  };
+
+  const handleLanguageChange = () => {
+    const newLang = language === 'en' ? 'hi' : 'en';
+    setLanguage(newLang);
   };
 
   const isActivePath = (path: string) => location.pathname === path;
@@ -53,7 +61,7 @@ const Layout = ({ children }: LayoutProps) => {
             <SheetContent side="left" className="w-80 p-0">
               <div className="flex h-full flex-col">
                 <div className="border-b p-6">
-                  <h2 className="text-lg font-semibold text-government-blue">
+                  <h2 className="text-lg font-semibold text-government-green">
                     CivicConnect
                   </h2>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -80,21 +88,31 @@ const Layout = ({ children }: LayoutProps) => {
                     onClick={() => handleNavigation("/login")}
                   >
                     <LogOut className="mr-3 h-4 w-4" />
-                    Sign Out
+                    {t("signOut")}
                   </Button>
                 </div>
               </div>
             </SheetContent>
           </Sheet>
           
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded bg-government-blue flex items-center justify-center">
+          <div className="flex items-center space-x-2 flex-1">
+            <div className="h-8 w-8 rounded bg-government-green flex items-center justify-center">
               <span className="text-sm font-bold text-white">CC</span>
             </div>
-            <h1 className="text-xl font-semibold text-government-blue">
+            <h1 className="text-xl font-semibold text-government-green">
               CivicConnect
             </h1>
           </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLanguageChange}
+            className="text-government-green hover:bg-government-light"
+          >
+            <Globe className="h-4 w-4 mr-1" />
+            {language === 'en' ? 'हिं' : 'EN'}
+          </Button>
         </div>
       </header>
 
