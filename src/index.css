@@ -2,39 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Government-style Design System for Civic Platform
+All colors MUST be HSL. Professional, trustworthy, accessible.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Background & Text */
+    --background: 0 0% 99%;
+    --foreground: 221 39% 11%;
 
+    /* Card Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 221 39% 11%;
 
+    /* Popover Components */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 221 39% 11%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Government Primary - Navy Blue */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 221 83% 45%;
+    --primary-light: 221 83% 95%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Government Secondary - Professional Gray */
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 221 39% 11%;
+    --secondary-hover: 210 40% 88%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted Elements */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Light Government Blue */
+    --accent: 221 83% 95%;
+    --accent-foreground: 221 83% 53%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status Colors - Government Approved */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Interactive Elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
+
+    /* Government Specific Colors */
+    --government-blue: 221 83% 53%;
+    --government-navy: 221 39% 11%;
+    --government-light: 221 83% 95%;
+    --government-accent: 200 95% 40%;
+
+    /* Shadows & Effects */
+    --shadow-soft: 0 2px 8px hsla(221, 39%, 11%, 0.05);
+    --shadow-medium: 0 4px 16px hsla(221, 39%, 11%, 0.1);
+    --shadow-strong: 0 8px 24px hsla(221, 39%, 11%, 0.15);
+
+    /* Gradients */
+    --gradient-government: linear-gradient(135deg, hsl(var(--government-blue)), hsl(var(--government-accent)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
 
     --radius: 0.5rem;
 
