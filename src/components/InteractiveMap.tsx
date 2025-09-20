@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Navigation, Plus } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { Loader } from '@googlemaps/js-api-loader';
 
 interface MapProps {
   onLocationSelect?: (lat: number, lng: number) => void;
@@ -16,8 +17,10 @@ const InteractiveMap: React.FC<MapProps> = ({ onLocationSelect, height = "400px"
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
+  const [googleMapsKey, setGoogleMapsKey] = useState('');
   const [showTokenInput, setShowTokenInput] = useState(true);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Mock data for nearby issues
   const nearbyIssues = [
@@ -27,62 +30,129 @@ const InteractiveMap: React.FC<MapProps> = ({ onLocationSelect, height = "400px"
   ];
 
   useEffect(() => {
-    if (!mapboxToken || !mapContainer.current) return;
+    if (!googleMapsKey || !mapContainer.current) return;
 
-    // For now, we'll create a simple map placeholder
-    // In production, you would integrate with actual Mapbox GL JS
-    const initMap = () => {
+    const initMap = async () => {
       if (!mapContainer.current) return;
       
-      // Simple map simulation
-      mapContainer.current.innerHTML = `
-        <div style="
-          width: 100%; 
-          height: 100%; 
-          background: linear-gradient(45deg, #e8f5e8 0%, #f0f8e8 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-          border-radius: 8px;
-          overflow: hidden;
-        ">
-          <div style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #2d5016;
-            font-size: 18px;
-            font-weight: 600;
-            text-align: center;
-          ">
-            📍 ${t('selectLocationToReport')}<br/>
-            <small style="font-size: 14px; opacity: 0.7;">Click anywhere to select location</small>
-          </div>
-        </div>
-      `;
+      setIsLoading(true);
+      try {
+        const loader = new Loader({
+          apiKey: googleMapsKey,
+          version: "weekly",
+          libraries: ["places"]
+        });
 
-      // Add click handler for location selection
-      mapContainer.current.addEventListener('click', (e) => {
-        const rect = mapContainer.current!.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const { Map } = await loader.importLibrary("maps");
         
-        // Mock coordinates based on click position
-        const lat = 28.6129 + (rect.height/2 - y) * 0.001;
-        const lng = 77.2295 + (x - rect.width/2) * 0.001;
-        
-        setSelectedLocation({ lat, lng });
-        onLocationSelect?.(lat, lng);
-      });
+        const mapInstance = new Map(mapContainer.current, {
+          center: { lat: 28.6129, lng: 77.2295 }, // Default to Delhi
+          zoom: 13,
+          mapTypeControl: true,
+          streetViewControl: true,
+          fullscreenControl: true,
+        });
+
+        setMap(mapInstance);
+
+        // Add click listener for location selection
+        mapInstance.addListener('click', (e: google.maps.MapMouseEvent) => {
+          const lat = e.latLng?.lat();
+          const lng = e.latLng?.lng();
+          
+          if (lat && lng) {
+            setSelectedLocation({ lat, lng });
+            onLocationSelect?.(lat, lng);
+            
+            // Add marker at clicked location
+            new google.maps.Marker({
+              position: { lat, lng },
+              map: mapInstance,
+              title: t('selectLocationToReport'),
+              icon: {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#2d5016">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  </svg>
+                `),
+                scaledSize: new google.maps.Size(32, 32)
+              }
+            });
+          }
+        });
+
+        // Add markers for nearby issues
+        nearbyIssues.forEach((issue) => {
+          new google.maps.Marker({
+            position: { lat: issue.lat, lng: issue.lng },
+            map: mapInstance,
+            title: issue.title,
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#e11d48">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+              `),
+              scaledSize: new google.maps.Size(24, 24)
+            }
+          });
+        });
+
+      } catch (error) {
+        console.error('Error loading Google Maps:', error);
+        // Fallback to demo map
+        if (mapContainer.current) {
+          mapContainer.current.innerHTML = `
+            <div style="
+              width: 100%; 
+              height: 100%; 
+              background: linear-gradient(45deg, #e8f5e8 0%, #f0f8e8 100%);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              position: relative;
+              border-radius: 8px;
+              overflow: hidden;
+            ">
+              <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: #2d5016;
+                font-size: 18px;
+                font-weight: 600;
+                text-align: center;
+              ">
+                📍 ${t('selectLocationToReport')}<br/>
+                <small style="font-size: 14px; opacity: 0.7;">Click anywhere to select location</small>
+              </div>
+            </div>
+          `;
+
+          // Add click handler for demo map
+          mapContainer.current.addEventListener('click', (e) => {
+            const rect = mapContainer.current!.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const lat = 28.6129 + (rect.height/2 - y) * 0.001;
+            const lng = 77.2295 + (x - rect.width/2) * 0.001;
+            
+            setSelectedLocation({ lat, lng });
+            onLocationSelect?.(lat, lng);
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     initMap();
-  }, [mapboxToken, t, onLocationSelect]);
+  }, [googleMapsKey, t, onLocationSelect]);
 
   const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
+    if (googleMapsKey.trim()) {
       setShowTokenInput(false);
     }
   };
@@ -94,6 +164,12 @@ const InteractiveMap: React.FC<MapProps> = ({ onLocationSelect, height = "400px"
           const { latitude, longitude } = position.coords;
           setSelectedLocation({ lat: latitude, lng: longitude });
           onLocationSelect?.(latitude, longitude);
+          
+          // Center map on user location if Google Maps is loaded
+          if (map) {
+            map.setCenter({ lat: latitude, lng: longitude });
+            map.setZoom(15);
+          }
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -107,33 +183,33 @@ const InteractiveMap: React.FC<MapProps> = ({ onLocationSelect, height = "400px"
       <Card className="p-6">
         <CardContent className="space-y-4">
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-government-green">Interactive Map</h3>
+            <h3 className="text-lg font-semibold text-government-green">{t('interactiveMap')}</h3>
             <p className="text-sm text-muted-foreground mt-2">
-              To use the interactive map, please enter your Mapbox public token below.
-              You can get one free at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-government-green underline">mapbox.com</a>
+              To use the interactive map, please enter your Google Maps API key below.
+              {t('getMapboxToken')} <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" className="text-government-green underline">Google Cloud Console</a>
             </p>
           </div>
           <div className="flex gap-2">
             <Input
-              placeholder="Enter Mapbox public token..."
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
+              placeholder="Enter Google Maps API key..."
+              value={googleMapsKey}
+              onChange={(e) => setGoogleMapsKey(e.target.value)}
               className="flex-1"
             />
             <Button onClick={handleTokenSubmit} className="bg-government-green hover:bg-government-green/90">
-              Load Map
+              {t('loadMap')}
             </Button>
           </div>
           <div className="text-center">
             <Button 
               variant="outline" 
               onClick={() => {
-                setMapboxToken('demo-token');
+                setGoogleMapsKey('demo-token');
                 setShowTokenInput(false);
               }}
               className="text-government-green border-government-green hover:bg-government-light"
             >
-              Use Demo Map
+              {t('useDemoMap')}
             </Button>
           </div>
         </CardContent>
@@ -153,7 +229,7 @@ const InteractiveMap: React.FC<MapProps> = ({ onLocationSelect, height = "400px"
             className="text-government-green border-government-green hover:bg-government-light"
           >
             <Navigation className="h-4 w-4 mr-1" />
-            My Location
+            {t('myLocation')}
           </Button>
           {selectedLocation && (
             <Button
@@ -171,8 +247,17 @@ const InteractiveMap: React.FC<MapProps> = ({ onLocationSelect, height = "400px"
       <div 
         ref={mapContainer} 
         style={{ height }}
-        className="w-full border-2 border-government-light rounded-lg cursor-pointer"
-      />
+        className="w-full border-2 border-government-light rounded-lg cursor-pointer relative"
+      >
+        {isLoading && (
+          <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
+            <div className="text-center space-y-2">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-government-green mx-auto"></div>
+              <p className="text-sm text-muted-foreground">{t('loading')}</p>
+            </div>
+          </div>
+        )}
+      </div>
       
       {selectedLocation && (
         <Card className="p-4 bg-government-light/30">
