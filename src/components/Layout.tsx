@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { 
@@ -10,10 +10,13 @@ import {
   FileText, 
   Award,
   LogOut,
-  Globe
+  Globe,
+  Bell
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import BottomNavigation from "@/components/BottomNavigation";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,6 +27,14 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { language, setLanguage, t } = useLanguage();
+  const { user, signOut, loading } = useAuth();
+
+  // Redirect to auth if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
 
   const navigationItems = [
     { label: t("home"), icon: Home, path: "/" },
@@ -43,6 +54,25 @@ const Layout = ({ children }: LayoutProps) => {
     const newLang = language === 'en' ? 'hi' : 'en';
     setLanguage(newLang);
   };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  // Show loading screen while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-16 w-16 rounded-full bg-government-green flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-sm font-bold text-white">CC</span>
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const isActivePath = (path: string) => location.pathname === path;
 
@@ -82,10 +112,18 @@ const Layout = ({ children }: LayoutProps) => {
                   ))}
                 </nav>
                 <div className="border-t p-4">
+                  <div className="mb-4 px-2">
+                    <p className="text-sm font-medium text-government-green">
+                      {user?.user_metadata?.full_name || user?.email}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-destructive hover:text-destructive"
-                    onClick={() => handleNavigation("/login")}
+                    onClick={handleSignOut}
                   >
                     <LogOut className="mr-3 h-4 w-4" />
                     {t("signOut")}
@@ -104,22 +142,37 @@ const Layout = ({ children }: LayoutProps) => {
             </h1>
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLanguageChange}
-            className="text-government-green hover:bg-government-light"
-          >
-            <Globe className="h-4 w-4 mr-1" />
-            {language === 'en' ? 'हिं' : 'EN'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/notifications")}
+              className="text-government-green hover:bg-government-light"
+            >
+              <Bell className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLanguageChange}
+              className="text-government-green hover:bg-government-light"
+            >
+              <Globe className="h-4 w-4 mr-1" />
+              {language === 'en' ? 'हिं' : 'EN'}
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container px-4 py-6">
+      <main className="container px-4 py-6 pb-20 md:pb-6">
         {children}
       </main>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <div className="md:hidden">
+        <BottomNavigation />
+      </div>
     </div>
   );
 };

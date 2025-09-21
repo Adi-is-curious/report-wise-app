@@ -47,21 +47,6 @@ export type Database = {
         }
         Relationships: []
       }
-      CivicConnect: {
-        Row: {
-          created_at: string
-          id: number
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-        }
-        Update: {
-          created_at?: string
-          id?: number
-        }
-        Relationships: []
-      }
       coin_transactions: {
         Row: {
           amount: number
