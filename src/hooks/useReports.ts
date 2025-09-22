@@ -64,14 +64,11 @@ export const useReports = () => {
 
   const fetchReports = async () => {
     try {
-      const { data, error } = await supabase
+      // First fetch reports with categories
+      const { data: reportsData, error: reportsError } = await supabase
         .from('reports')
         .select(`
           *,
-          profiles!user_id (
-            full_name,
-            avatar_url
-          ),
           categories!category_id (
             name,
             name_hindi,
@@ -81,8 +78,22 @@ export const useReports = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setReports((data as any) || []);
+      if (reportsError) throw reportsError;
+
+      // Then fetch public profile data for each report using security definer function
+      const reportsWithProfiles = await Promise.all(
+        (reportsData || []).map(async (report) => {
+          const { data: profileData } = await supabase
+            .rpc('get_public_profile_data', { profile_user_id: report.user_id });
+          
+          return {
+            ...report,
+            profiles: profileData?.[0] || null
+          };
+        })
+      );
+
+      setReports(reportsWithProfiles as any);
     } catch (error: any) {
       console.error('Error fetching reports:', error);
       toast({
