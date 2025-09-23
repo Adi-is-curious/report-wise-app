@@ -18,6 +18,8 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+import MobileCivicApp from "./MobileCivicApp";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -28,6 +30,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/mobile" element={<MobileCivicApp />} />
               <Route path="/" element={<Layout><Home /></Layout>} />
               <Route path="/report" element={<Layout><ReportIssue /></Layout>} />
               <Route path="/map" element={<Layout><ActiveCases /></Layout>} />

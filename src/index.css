@@ -20,11 +20,11 @@ All colors MUST be HSL. Professional, trustworthy, accessible.
     --popover: 0 0% 100%;
     --popover-foreground: 140 25% 15%;
 
-    /* Government Primary - Forest Green */
-    --primary: 140 65% 35%;
+    /* Government Primary - Professional Blue */
+    --primary: 213 94% 68%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 140 65% 28%;
-    --primary-light: 140 65% 95%;
+    --primary-hover: 213 94% 60%;
+    --primary-light: 213 94% 95%;
 
     /* Government Secondary - Light Green */
     --secondary: 85 45% 88%;
@@ -53,7 +53,10 @@ All colors MUST be HSL. Professional, trustworthy, accessible.
     --ring: 140 65% 35%;
 
     /* Government Specific Colors */
-    --government-green: 140 65% 35%;
+    --government-blue: 213 94% 68%;
+    --government-green: 140 65% 50%;
+    --government-red: 0 84% 60%;
+    --government-orange: 25 95% 53%;
     --government-yellow: 50 95% 65%;
     --government-light: 85 55% 95%;
     --government-accent: 45 95% 55%;
