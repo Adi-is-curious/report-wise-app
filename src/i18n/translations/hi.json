@@ -20,5 +20,15 @@
   "dashboard": "डैशबोर्ड",
   "rewards": "पुरस्कार",
   "settings": "सेटिंग्स",
-  "logout": "लॉगआउट"
+  "logout": "लॉगआउट",
+  "forgotPassword": "पासवर्ड भूल गए?",
+  "resetPassword": "पासवर्ड रीसेट करें",
+  "resetPasswordDescription": "पासवर्ड रीसेट लिंक प्राप्त करने के लिए अपना ईमेल दर्ज करें",
+  "sendResetLink": "रीसेट लिंक भेजें",
+  "sending": "भेजा जा रहा है...",
+  "cancel": "रद्द करें",
+  "points": "अंक",
+  "reports": "रिपोर्ट्स",
+  "settings": "सेटिंग्स",
+  "map": "नक्शा"
 }

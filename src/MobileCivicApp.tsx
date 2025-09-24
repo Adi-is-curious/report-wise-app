@@ -22,7 +22,9 @@ import {
   Search,
   Filter,
   MoreHorizontal,
-  Wifi
+  Wifi,
+  Globe,
+  Languages
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +37,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jharkhandEmblem from "@/assets/jharkhand-emblem.jpg";
+import LeafletMap from "@/components/LeafletMap";
 
 // Types
 interface Profile {
@@ -89,8 +92,8 @@ interface Reward {
 }
 
 const MobileCivicApp = () => {
-  const { user, loading: authLoading } = useAuth();
-  const { t } = useLanguage();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { t, language, setLanguage } = useLanguage();
   
   // State management
   const [activeTab, setActiveTab] = useState('home');

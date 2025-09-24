@@ -18,7 +18,14 @@
   "recentActivity": "Recent Activity",
   "viewAll": "View All",
   "dashboard": "Dashboard",
-  "rewards": "Rewards",
-  "settings": "Settings",
-  "logout": "Logout"
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "resetPasswordDescription": "Enter your email to receive a password reset link",
+    "sendResetLink": "Send Reset Link",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "points": "Points",
+    "reports": "Reports",
+    "settings": "Settings",
+    "map": "Map"
 }
